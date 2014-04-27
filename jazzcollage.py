@@ -57,32 +57,6 @@ def generate_nklangs():
 
     return nklangs
 
-def synthesize_chords(chords, resolution):
-    sr = 44100.0
-    bpm = 120.0
-    timesig = 4
-    tfactor = resolution * sr * timesig / (bpm / 60)
-    signal = np.zeros(len(chords) * tfactor)
-    for i, (root, notes) in enumerate(chords):
-        start = int(i * tfactor)
-        end = int((i + 1) * tfactor)
-        l = end - start
-        for j, n in enumerate(notes):
-            if n:
-                fq = pitches.C4.fq * np.power(2, j / 12.0)
-                signal[start:end] += np.sin(np.arange(l) * np.pi * 2 * fq / sr)
-        root_fq = pitches.C2.fq * np.power(2, root / 12.0)
-        signal[start:end] += np.sin(np.arange(l) * np.pi * 2 * root_fq / sr)
-
-    signal /= np.max(np.abs(signal))
-    signal = signal.astype('float32')
-        
-    return audio.Audio(signal, sr)
-
-def synthesize_tune(chords):
-    a = synthesize_chords(chords, resolution=0.5)
-    audio.play(a)
-
 def klang_in_chord(klang, chord):
     for k in klang:
         if not chord[k]:
